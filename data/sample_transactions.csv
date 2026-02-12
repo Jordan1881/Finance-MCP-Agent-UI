@@ -1,0 +1,5 @@
+date,merchant,description,amount,currency,type
+2026-01-03,Whole Foods,Grocery shopping,-128.45,USD,expense
+2026-01-07,Employer Inc,Salary,3200.00,USD,income
+2026-01-09,Netflix,Subscription,-19.99,USD,expense
+2026-01-15,Shell,Fuel,-54.20,USD,expense

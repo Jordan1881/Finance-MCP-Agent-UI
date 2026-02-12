@@ -1,0 +1,33 @@
+# Python caches and artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Build outputs
+build/
+dist/
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Local runtime artifacts
+data/finance.db
+output/
+
+# Personal/local uploaded datasets
+upload_ready_transactions.csv
+data/transactions_en_headers.csv

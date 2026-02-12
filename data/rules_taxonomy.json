@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "rules": {
+    "grocery": ["whole foods", "trader joe", "kroger"],
+    "utilities": ["electric", "water", "internet"],
+    "subscriptions": ["netflix", "spotify", "apple"],
+    "transport": ["shell", "uber", "lyft"]
+  }
+}
