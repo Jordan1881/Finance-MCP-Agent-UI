@@ -16,7 +16,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--recommendations", type=int, default=3, help="Number of savings recommendations (3-7)")
     parser.add_argument("--db-path", default=None, help="Optional SQLite DB path")
     parser.add_argument("--output", default=None, help="Output markdown path")
-    parser.add_argument("--env-file", default=".env.example", help="Path to .env.example file")
+    parser.add_argument("--env-file", default=".env", help="Path to .env file")
     parser.add_argument("--no-llm", action="store_true", help="Disable LLM summary")
     parser.add_argument("--llm-model", default="gpt-4o-mini", help="LLM model for executive summary")
 

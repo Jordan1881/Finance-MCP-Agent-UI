@@ -154,7 +154,7 @@ python -m apps.agent.cli \
 
 LLM features are optional. Core logic works without API key.
 
-1. Copy `.env.example` to `.env`
+1. Create a `.env` file in the project root
 2. Put your real key in `.env`
 
 ```env
