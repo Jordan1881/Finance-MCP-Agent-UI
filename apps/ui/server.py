@@ -162,6 +162,26 @@ def main() -> int:
     return 0
 
 
+BALANCE_ALIASES = {"יתרה לאחר פעולה", "balance", "running_balance", "יתרה"}
+
+
+def _extract_balance_from_raw(raw_json: str | None) -> float | None:
+    if not raw_json:
+        return None
+    try:
+        raw = json.loads(raw_json)
+    except Exception:
+        return None
+    for key in BALANCE_ALIASES:
+        if key in raw:
+            try:
+                val = str(raw[key]).replace(",", "").strip()
+                return float(val) if val else None
+            except (ValueError, TypeError):
+                pass
+    return None
+
+
 def run_pipeline(payload: dict[str, Any]) -> dict[str, Any]:
     db_path = str(DEFAULT_DB_PATH)
     dataset_id = str(payload.get("dataset_id", "")).strip() or None
@@ -173,6 +193,7 @@ def run_pipeline(payload: dict[str, Any]) -> dict[str, Any]:
     recommendations = int(payload.get("recommendations", 3))
     use_llm = _to_bool(payload.get("use_llm", True))
     llm_model = str(payload.get("llm_model", "gpt-4o-mini")).strip() or "gpt-4o-mini"
+    currency_override = str(payload.get("currency_override", "")).strip() or None
 
     if upload_bytes:
         csv_text = _convert_uploaded_to_csv_text(
@@ -278,6 +299,31 @@ def run_pipeline(payload: dict[str, Any]) -> dict[str, Any]:
     if len(filtered_suggestions) < 3:
         filtered_suggestions = result["budget_suggestions"]["suggestions"]
 
+    # Build transactions list with balance data
+    storage = FinanceStorage(db_path)
+    storage.initialize()
+    raw_txns = storage.fetch_transactions(dataset_id=dataset_id, month=selected_month)
+    transactions_payload = []
+    for row in raw_txns:
+        merchant_raw = str(row["merchant"])
+        cat, _ = categorize_merchant(merchant_raw, "")
+        balance = _extract_balance_from_raw(row.get("raw_json"))
+        transactions_payload.append({
+            "date": str(row["txn_date"]),
+            "merchant": translate_merchant(merchant_raw),
+            "merchant_raw": merchant_raw,
+            "amount": round(row["amount_cents"] / 100, 2),
+            "type": row["transaction_type"],
+            "category": cat,
+            "balance": balance,
+        })
+
+    # Build monthly trend (all months in dataset)
+    monthly_summaries = storage.fetch_monthly_summaries(dataset_id=dataset_id)
+
+    # Determine effective currency (override takes priority)
+    effective_currency = currency_override or result["monthly_report"].get("currency", "")
+
     return {
         "dataset_id": dataset_id,
         "month": selected_month,
@@ -297,6 +343,7 @@ def run_pipeline(payload: dict[str, Any]) -> dict[str, Any]:
             "is_saving": is_saving,
             "calculation_formula": "savings_or_loss = total_income_all - total_expenses_core",
             "spend_mode": "adjusted_excludes_transfers_deposits_loan_principal_card_payment",
+            "currency": effective_currency,
         },
         "top_merchants": {
             **result["top_merchants"],
@@ -309,6 +356,8 @@ def run_pipeline(payload: dict[str, Any]) -> dict[str, Any]:
         },
         "final_markdown": result["final_markdown"],
         "ui_labels": {"categories": CATEGORY_LABELS},
+        "transactions": transactions_payload,
+        "monthly_trend": monthly_summaries,
     }
 
 

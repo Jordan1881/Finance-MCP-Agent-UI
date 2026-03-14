@@ -8,14 +8,14 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any
 
 
-DATE_ALIASES = {"date", "transaction_date", "posted_at", "posted_date"}
-MERCHANT_ALIASES = {"merchant", "payee", "vendor", "name"}
-DESCRIPTION_ALIASES = {"description", "memo", "note", "details"}
-AMOUNT_ALIASES = {"amount", "transaction_amount", "value"}
-DEBIT_ALIASES = {"debit", "withdrawal", "outflow"}
-CREDIT_ALIASES = {"credit", "deposit", "inflow"}
+DATE_ALIASES = {"date", "transaction_date", "posted_at", "posted_date", "תאריך", "תאריך ערך"}
+MERCHANT_ALIASES = {"merchant", "payee", "vendor", "name", "תיאור הפעולה", "שם בית עסק", "מוטב"}
+DESCRIPTION_ALIASES = {"description", "memo", "note", "details", "פרטים", "תיאור"}
+AMOUNT_ALIASES = {"amount", "transaction_amount", "value", "סכום"}
+DEBIT_ALIASES = {"debit", "withdrawal", "outflow", "חובה", "חיוב"}
+CREDIT_ALIASES = {"credit", "deposit", "inflow", "זכות", "זיכוי"}
 TYPE_ALIASES = {"type", "transaction_type", "direction"}
-CURRENCY_ALIASES = {"currency", "ccy"}
+CURRENCY_ALIASES = {"currency", "ccy", "מטבע"}
 
 EXPENSE_TYPES = {"expense", "debit", "outflow", "purchase"}
 INCOME_TYPES = {"income", "credit", "inflow", "deposit"}

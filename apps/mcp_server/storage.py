@@ -116,7 +116,7 @@ class FinanceStorage:
 
     def fetch_transactions(self, *, dataset_id: str, month: str | None = None) -> list[dict]:
         query = """
-            SELECT txn_date, merchant, description, amount_cents, currency, transaction_type
+            SELECT txn_date, merchant, description, amount_cents, currency, transaction_type, raw_json
             FROM transactions
             WHERE dataset_id = ?
         """
@@ -137,6 +137,30 @@ class FinanceStorage:
                 "amount_cents": int(row[3]),
                 "currency": row[4],
                 "transaction_type": row[5],
+                "raw_json": row[6],
+            }
+            for row in rows
+        ]
+
+    def fetch_monthly_summaries(self, *, dataset_id: str) -> list[dict]:
+        query = """
+            SELECT
+                substr(txn_date, 1, 7) AS month,
+                SUM(CASE WHEN amount_cents > 0 THEN amount_cents ELSE 0 END) AS income_cents,
+                SUM(CASE WHEN amount_cents < 0 THEN ABS(amount_cents) ELSE 0 END) AS expenses_cents
+            FROM transactions
+            WHERE dataset_id = ?
+            GROUP BY substr(txn_date, 1, 7)
+            ORDER BY month ASC
+        """
+        with self._connect() as conn:
+            rows = conn.execute(query, (dataset_id,)).fetchall()
+
+        return [
+            {
+                "month": row[0],
+                "income": round(int(row[1]) / 100.0, 2),
+                "expenses": round(int(row[2]) / 100.0, 2),
             }
             for row in rows
         ]
